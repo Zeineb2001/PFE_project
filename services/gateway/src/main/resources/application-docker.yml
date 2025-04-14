@@ -1,29 +1,50 @@
+eureka:
+  instance:
+    hostname: discovery
+  client:
+    service-url:
+      defaultZone: http://discovery:8761/eureka
+
 server:
   port: 8222
+
 spring:
+  application:
+    name: gateway
   cloud:
+    config:
+      override-system-properties: false     
     gateway:
       discovery:
         locator:
           enabled: true
       routes:
         - id: customer-service
-          uri: lb:http://CUSTOMER-SERVICE
+          uri: http://customer-service:8090
           predicates:
             - Path=/api/v1/customers/**
         - id: order-service
-          uri: lb:http://ORDER-SERVICE
+          uri: http://order-service:8070
           predicates:
             - Path=/api/v1/orders/**
         - id: order-lines-service
-          uri: lb:http://ORDER-SERVICE
+          uri: http://order-service:8070
           predicates:
             - Path=/api/v1/order-lines/**
         - id: product-service
-          uri: lb:http://PRODUCT-SERVICE
+          uri: http://product-service:8050
           predicates:
             - Path=/api/v1/products/**
         - id: payment-service
-          uri: lb:http://PAYMENT-SERVICE
+          uri: http://payment-service:8060
           predicates:
             - Path=/api/v1/payments/**
+
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans

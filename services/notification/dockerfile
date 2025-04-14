@@ -1,0 +1,25 @@
+# Étape 1 : Utilisation de l'image Maven pour la construction de l'application
+FROM maven:3.8.4-openjdk-17-slim AS builder
+
+# Définir le répertoire de travail
+WORKDIR /workspace
+
+# Copier le fichier pom.xml et le code source
+COPY pom.xml /workspace
+COPY src /workspace/src
+
+# Installer les dépendances et construire le JAR sans les tests
+RUN mvn install -Dmaven.test.skip=true
+RUN mvn clean package -DskipTests
+
+
+# Étape 2 : Utilisation de l'image OpenJDK pour l'exécution
+FROM eclipse-temurin:17-jdk AS runtime
+
+# Copier le fichier JAR généré dans l'étape précédente
+COPY --from=builder /workspace/target/*.jar notification.jar
+
+EXPOSE 8040
+
+# Commande pour exécuter l'application
+ENTRYPOINT ["java", "-jar", "notification.jar"]

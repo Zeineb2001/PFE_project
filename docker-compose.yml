@@ -41,58 +41,253 @@ services:
     image: mongo
     container_name: mongo_db
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - mongo:/data
     environment:
       - MONGO_INITDB_ROOT_USERNAME=alibou
       - MONGO_INITDB_ROOT_PASSWORD=alibou
-
+    networks:
+      - microservices-net
   mongo-express:
     image: mongo-express
     container_name: mongo_express
     restart: always
     ports:
-      - 8081:8081
+      - "8081:8081"
     environment:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=alibou
       - ME_CONFIG_MONGODB_ADMINPASSWORD=alibou
       - ME_CONFIG_MONGODB_SERVER=mongodb
-
+    networks:
+      - microservices-net
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
     environment:
-      ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "22181:2181"
+      - 22181:2181
     networks:
       - microservices-net
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: ms_kafka
-    ports:
-      - "9092:9092"
     depends_on:
       - zookeeper
+    ports:
+      - 29092:29092
     environment:
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"     
     networks:
       - microservices-net
+
 
   mail-dev:
     container_name: ms-mail-dev
     image: maildev/maildev
     ports:
-      - 1080:1080
-      - 1025:1025
+      - "1080:1080"
+      - "1025:1025"
+    networks:
+      - microservices-net
+  discovery:
+    build:
+      context: ./services/discovery
+      dockerfile: Dockerfile
+    image: discovery:latest
+    container_name: discovery
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 1.0
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+       
+    depends_on:
+     - zipkin
+    restart: unless-stopped
+    networks:
+      - microservices-net
+
+  gateway:
+    build:
+      context: ./services/gateway
+      dockerfile: Dockerfile
+    image: gateway:latest
+    container_name: gateway
+    ports:
+      - "8222:8222"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 1.0
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+
+    depends_on:
+      - discovery
+      - zipkin      
+    restart: unless-stopped
+    networks:
+      - microservices-net
+
+  customer-service:
+    build:
+      context: ./services/customer
+      dockerfile: Dockerfile
+    image: customer:latest
+    container_name: customer
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker    
+      MONGO_INITDB_ROOT_USERNAME: alibou
+      MONGO_INITDB_ROOT_PASSWORD: alibou
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka 
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 1.0
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+        
+    depends_on:
+      - discovery
+      - gateway
+      - mongodb
+      - zipkin      
+    restart: unless-stopped
+    networks:
+      - microservices-net
+
+  product-service:
+    build:
+      context: ./services/product
+      dockerfile: Dockerfile
+    image: product:latest
+    container_name: product
+    ports:
+      - "8050:8050"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/product  # Connexion au service postgresql
+      SPRING_DATASOURCE_USERNAME: alibou
+      SPRING_DATASOURCE_PASSWORD: alibou
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka  
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 1.0
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+    
+    depends_on:
+      - discovery
+      - gateway
+      - postgresql
+      - zipkin    
+    restart: unless-stopped
+    networks:
+      - microservices-net
+
+  order-service:
+    build:
+      context: ./services/order
+      dockerfile: Dockerfile
+    image: order:latest
+    container_name: order
+    ports:
+      - "8070:8070"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/order  # Connexion au service postgresql
+      SPRING_DATASOURCE_USERNAME: alibou
+      SPRING_DATASOURCE_PASSWORD: alibou
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka 
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # La clé magique qui marche toujours
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092         # Pour les anciennes apps
+      KAFKA_ADVERTISED_LISTENERS: kafka:9092  
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 1.0
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+            
+    depends_on:
+      - discovery
+      - gateway
+      - postgresql
+      - kafka
+      - zipkin      
+    restart: unless-stopped
+    networks:
+      - microservices-net
+
+  payment-service:
+    build:
+      context: ./services/payment
+      dockerfile: Dockerfile
+    image: payment:latest
+    container_name: payment
+    ports:
+      - "8060:8060"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/payment  # Connexion au service postgresql
+      SPRING_DATASOURCE_USERNAME: alibou
+      SPRING_DATASOURCE_PASSWORD: alibou
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka  
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # La clé magique qui marche toujours
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092         # Pour les anciennes apps
+      KAFKA_ADVERTISED_LISTENERS: kafka:9092  
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 1.0
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+                      
+    depends_on:
+      - discovery
+      - gateway
+      - postgresql
+      - kafka
+      - zipkin
+      - order-service
+    restart: unless-stopped
+    networks:
+      - microservices-net
+
+  notification-service:
+    build:
+      context: ./services/notification
+      dockerfile: Dockerfile
+    image: notification:latest
+    container_name: notification
+    ports:
+      - "8040:8040"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_INSTANCE_HOSTNAME: discovery
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery:8761/eureka
+      SPRING_APPLICATION_NAME: notification-service
+      SPRING_DATA_MONGODB_USERNAME: alibou
+      SPRING_DATA_MONGODB_PASSWORD: alibou
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: notification
+      SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: admin
+      SPRING_MAIL_HOST: mail-dev
+      SPRING_MAIL_PORT: 1025
+      SPRING_MAIL_USERNAME: alibou
+      SPRING_MAIL_PASSWORD: aliboudocker rm  
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  # La clé magique qui marche toujours
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092         # Pour les anciennes apps
+      KAFKA_ADVERTISED_LISTENERS: kafka:9092  
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 1.0
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+              
+    depends_on:
+    - mongodb
+    - kafka
+    - mail-dev
+    - discovery
+    - zipkin 
+
+    restart: unless-stopped
+    networks:
+      - microservices-net
 
 networks:
   microservices-net:

@@ -13,7 +13,7 @@ import static org.springframework.kafka.support.KafkaHeaders.TOPIC;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderProducer {
-
+    
     private final KafkaTemplate<String, OrderConfirmation> kafkaTemplate;
 
     public void sendOrderConfirmation(OrderConfirmation orderConfirmation) {

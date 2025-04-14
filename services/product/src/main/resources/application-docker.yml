@@ -1,14 +1,27 @@
+eureka:
+  instance:
+  hostname: discovery
+  client:
+    service-url:
+      defaultZone: http://discovery:8761/eureka
+
 server:
   port: 8050
+
 spring:
+  application:
+    name: product-service
+  cloud:
+    config:
+      override-system-properties: false   
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/product
+    url: jdbc:postgresql://postgresql:5432/product
     username: alibou
     password: alibou
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   flyway:
@@ -18,4 +31,13 @@ spring:
     baseline-version: 0
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
+  
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
 

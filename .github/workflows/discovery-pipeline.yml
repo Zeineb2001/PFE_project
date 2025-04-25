@@ -48,7 +48,7 @@ jobs:
           java-version: '17'
           
       - name: Run unit tests
-        working-directory: services/discovery/src/test
+        working-directory: services/discovery
         run: mvn test
 
       - name: SonarQube Analysis

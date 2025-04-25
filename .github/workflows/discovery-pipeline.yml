@@ -1,0 +1,86 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+     
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven
+        working-directory: services/discovery
+        run: mvn clean package -DskipTests
+
+      - name: Archive JAR Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: discovery.jar
+          path: services/discovery/target/*.jar
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Run unit tests
+        working-directory: services/discovery/src/test
+        run: mvn test
+
+      - name: SonarQube Analysis
+        working-directory: services/discovery
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Utilisation du secret SONAR_TOKEN
+        run: |
+          mvn verify sonar:sonar \
+            -Dsonar.projectKey=discovery \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}  # Utilisation du secret SONAR_HOST_URL
+            -Dsonar.login=${{ env.SONAR_TOKEN }}  # Utilisation du secret SONAR_TOKEN
+
+  push:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Utilisation du secret DOCKER_USERNAME
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Utilisation du secret DOCKER_PASSWORD
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/discovery:v1 -f services/discovery/Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/discovery:v1
+
+
+
+
+
+

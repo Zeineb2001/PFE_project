@@ -78,9 +78,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
+        working-directory: services/discovery
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/discovery:v1 -f services/discovery/Dockerfile .
-          docker push ${{ secrets.DOCKER_USERNAME }}/discovery:v1
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/discovery:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/discovery:latest
 
 
 

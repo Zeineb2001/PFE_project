@@ -60,7 +60,7 @@ jobs:
           mvn verify sonar:sonar \
             -Dsonar.projectKey=Zeineb2001_PFE_project \
             -Dsonar.organization=zeineb2001 \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.java.binaries=target
 
   push:

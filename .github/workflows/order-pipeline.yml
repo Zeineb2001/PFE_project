@@ -66,7 +66,7 @@ jobs:
 
       - name: Create order database
         run: |
-          PGPASSWORD=alibou psql -h localhost -U alibou -d postgres -c "CREATE DATABASE order;"
+          PGPASSWORD=alibou psql -h localhost -U alibou -d postgres -c 'CREATE DATABASE "order";'
 
       - name: Run unit tests
         working-directory: services/order

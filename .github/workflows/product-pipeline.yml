@@ -36,6 +36,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
+    services:
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: alibou
+          POSTGRES_PASSWORD: alibou
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -48,8 +63,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Wait for Postgres to be ready
+        run: sleep 20
+
       - name: Run unit tests
         working-directory: services/product
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/product
+          SPRING_DATASOURCE_USERNAME: alibou
+          SPRING_DATASOURCE_PASSWORD: alibou
         run: mvn test
 
       - name: SonarCloud Analysis

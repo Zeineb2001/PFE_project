@@ -98,15 +98,20 @@ jobs:
           # Créer les répertoires de sortie si nécessaire
           mkdir -p results/report
           # Exécuter les tests de performance avec JMeter en mode non interactif
-          ./apache-jmeter-5.6.3/bin/jmeter -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report
-
+          
+          ./apache-jmeter-5.6.3/bin/jmeter -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report -Jlog_level.jmeter=DEBUG
+          
+      - name: List files in results directory
+        run: |
+          ls -lh results/
+          
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
           path: |
             results/result.jtl  # Résultats bruts des tests
-            results/report       # Rapport HTML généré par JMeter
+            results/report/*      # Rapport HTML généré par JMeter
 
       - name: View JMeter HTML Report
         run: |

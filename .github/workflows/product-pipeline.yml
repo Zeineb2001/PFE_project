@@ -102,7 +102,7 @@ jobs:
           ./apache-jmeter-5.4.1/bin/jmeter -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report
 
       - name: Upload JMeter Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
           path: |

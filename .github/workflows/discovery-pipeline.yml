@@ -110,14 +110,17 @@ jobs:
           # Update values.yaml with the new Docker image in the PFE_project_deploy repository
           sed -i 's|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/discovery:latest|' PFE_project_deploy/App-chart/values.yaml
 
-      - name: Commit changes to PFE_project_deploy repository
+      - name: Check if there are changes to commit
         run: |
           cd PFE_project_deploy
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add App-chart/values.yaml
-          git commit -m "Update discovery image to latest version"
-          git push origin main  # Pousser les modifications vers PFE_project_deploy
+          git diff --exit-code App-chart/values.yaml  # Si aucune modification, retourne un code de sortie 0
+          if [ $? -ne 0 ]; then
+            git add App-chart/values.yaml
+            git commit -m "Update discovery image to latest version"
+            git push origin main  # Pousser les modifications vers PFE_project_deploy
+          else
+            echo "No changes to commit"
+          fi
 
       - name: Get ArgoCD admin password
         id: get-argocd-password
@@ -129,7 +132,7 @@ jobs:
         run: |
           kubectl port-forward svc/argocd-server -n argocd 8085:80 &
           sleep 5
-          echo "ArgoCD UI accessible at http://localhost:8085"
+          echo "ArgoCD UI accessible at http://localhost:8085"  # Indicate access URL
 
       - name: Display message to user
         run: |
@@ -146,6 +149,7 @@ jobs:
       - name: Wait for pods to be ready
         run: |
           kubectl rollout status deployment/discovery -n default
+
 
 
 

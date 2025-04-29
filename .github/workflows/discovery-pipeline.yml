@@ -92,23 +92,20 @@ jobs:
       - name: Set up kubeconfig for K3s
         run: |
           # Créer le répertoire kubeconfig
-          mkdir -p ~/.kube
+          mkdir  ${HOME}/.kube
 
           # Copier le fichier kubeconfig du secret GitHub dans le répertoire kubeconfig
-          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-
-          # Remplacer localhost:6443 par l'IP correcte de votre WSL (172.27.249.245)
-          sed -i 's|https://127.0.0.1:6443|https://172.27.249.245:6443|' ~/.kube/config
-
+          echo "${{ secrets.KUBE_CONFIG }}" > ${HOME}/.kube/config
+          
           # Vérifier que la mise à jour du fichier kubeconfig a bien été effectuée
-          cat ~/.kube/config  # Affiche le contenu du fichier kubeconfig pour vérification
+          cat ${HOME}/.kube/config  
 
           # Définir la variable d'environnement KUBECONFIG pour forcer kubectl à utiliser le bon fichier kubeconfig
           export KUBECONFIG=~/.kube/config
 
           # Vérifier que kubectl peut accéder à la configuration et au cluster K3s
           kubectl config view
-          kubectl get nodes  # Vérifier que kubectl peut accéder au cluster K3s
+          kubectl get nodes  
 
       - name: Checkout the code repository
         uses: actions/checkout@v3

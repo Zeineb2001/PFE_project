@@ -100,9 +100,6 @@ jobs:
           # Vérifier que la mise à jour du fichier kubeconfig a bien été effectuée
           cat ${HOME}/.kube/config  
 
-          # Définir la variable d'environnement KUBECONFIG pour forcer kubectl à utiliser le bon fichier kubeconfig
-          export KUBECONFIG=~/.kube/config
-
           # Vérifier que kubectl peut accéder à la configuration et au cluster K3s
           kubectl config view
           kubectl get nodes  

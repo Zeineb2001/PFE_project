@@ -91,18 +91,9 @@ jobs:
     steps:
       - name: Set up kubeconfig for K3s
         run: |
-          # Créer le répertoire kubeconfig
-          mkdir ~/.kube
+          
+          curl -k https://172.27.249.245:6443/api
 
-          # Copier le fichier kubeconfig du secret GitHub dans le répertoire kubeconfig
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
-          chmod 600 ~/.kube/config
-          # Vérifier que la mise à jour du fichier kubeconfig a bien été effectuée
-          cat ~/.kube/config  
-
-          # Vérifier que kubectl peut accéder à la configuration et au cluster K3s
-          kubectl config view
-          kubectl get nodes  
 
       - name: Checkout the code repository
         uses: actions/checkout@v3

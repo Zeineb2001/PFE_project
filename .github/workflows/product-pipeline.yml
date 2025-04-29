@@ -99,7 +99,7 @@ jobs:
       - name: Run JMeter Performance Test
         run: |
           # Exécuter les tests de performance avec JMeter en mode non interactif
-          $JMETER_HOME/bin/jmeter -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report
+          $JMETER_HOME/bin/jmeter.sh -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4

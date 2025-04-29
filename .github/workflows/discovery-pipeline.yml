@@ -89,22 +89,26 @@ jobs:
     needs: push
 
     steps:
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          kubectl-version: 'v1.24.7'
-
       - name: Set up kubeconfig for K3s
         run: |
           # Créer le répertoire kubeconfig
           mkdir -p ~/.kube
+
           # Copier le fichier kubeconfig du secret GitHub dans le répertoire kubeconfig
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-          # Vérifier la configuration
-          sed -i 's|https://127.0.0.1:6443|https://172.27.249.245:6443|' ~/.kube/config  # Remplacez par l'IP correcte de votre WSL
-          cat ~/.kube/config
-          sudo kubectl config view
-          sudo kubectl get nodes  # Vérifie que kubectl peut accéder au cluster K3s
+
+          # Remplacer localhost:6443 par l'IP correcte de votre WSL (172.27.249.245)
+          sed -i 's|https://127.0.0.1:6443|https://172.27.249.245:6443|' ~/.kube/config
+
+          # Vérifier que la mise à jour du fichier kubeconfig a bien été effectuée
+          cat ~/.kube/config  # Affiche le contenu du fichier kubeconfig pour vérification
+
+          # Définir la variable d'environnement KUBECONFIG pour forcer kubectl à utiliser le bon fichier kubeconfig
+          export KUBECONFIG=~/.kube/config
+
+          # Vérifier que kubectl peut accéder à la configuration et au cluster K3s
+          kubectl config view
+          kubectl get nodes  # Vérifier que kubectl peut accéder au cluster K3s
 
       - name: Checkout the code repository
         uses: actions/checkout@v3
@@ -161,6 +165,7 @@ jobs:
       - name: Wait for pods to be ready
         run: |
           kubectl rollout status deployment/discovery -n default
+
 
 
 

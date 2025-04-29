@@ -103,7 +103,7 @@ jobs:
           
       - name: List files in results directory
         run: |
-          ls -lh results/
+          ls -lh results/report/
           
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
@@ -111,7 +111,7 @@ jobs:
           name: jmeter-results
           path: |
             results/result.jtl  # Résultats bruts des tests
-            results/report/*      # Rapport HTML généré par JMeter
+            results/report/index.html      # Rapport HTML généré par JMeter
 
       - name: View JMeter HTML Report
         run: |

@@ -1,0 +1,24 @@
+<TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="ProductService Performance Test" enabled="true">
+  <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+    <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+    <elementProp name="MainThreadGroup" elementType="ThreadGroup">
+      <stringProp name="ThreadGroup.num_threads">10</stringProp> <!-- Nombre d'utilisateurs simultanés -->
+      <stringProp name="ThreadGroup.ramp_time">5</stringProp> <!-- Temps pour atteindre la pleine charge -->
+      <stringProp name="ThreadGroup.loops">1</stringProp> <!-- Nombre de répétitions des requêtes -->
+    </elementProp>
+
+    <!-- Requête HTTP GET pour l'URL /api/v1/products -->
+    <HttpSampler guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP GET Request to /api/v1/products" enabled="true">
+      <stringProp name="HTTPSampler.domain">localhost</stringProp> <!-- Domaine du microservice -->
+      <stringProp name="HTTPSampler.port">8050</stringProp> <!-- Port du microservice -->
+      <stringProp name="HTTPSampler.protocol">http</stringProp> <!-- Protocole HTTP -->
+      <stringProp name="HTTPSampler.path">/api/v1/products</stringProp> <!-- L'endpoint à tester -->
+      <stringProp name="HTTPSampler.method">GET</stringProp> <!-- Méthode HTTP -->
+    </HttpSampler>
+
+    <!-- Collecteur de résultats -->
+    <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+      <stringProp name="filename">results.jtl</stringProp> <!-- Fichier où les résultats seront sauvegardés -->
+    </ResultCollector>
+  </ThreadGroup>
+</TestPlan>

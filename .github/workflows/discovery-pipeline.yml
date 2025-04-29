@@ -91,12 +91,12 @@ jobs:
       - name: Checkout the source code repository
         uses: actions/checkout@v3
         with:
-          repository: Zeineb2001/PFE_project  # Le dépôt contenant le code source
+          repository: Zeineb2001/PFE_project 
 
       - name: Clone PFE_project_deploy repository
         uses: actions/checkout@v3
         with:
-          repository: Zeineb2001/PFE_project_deploy  # Le dépôt contenant le fichier values.yaml
+          repository: Zeineb2001/PFE_project_deploy  
           path: PFE_project_deploy
 
       - name: Update Image Version in values.yaml
@@ -116,8 +116,8 @@ jobs:
           cd PFE_project_deploy
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git remote set-url origin https://github.com/${{ secrets.GITHUB_ACTOR }}:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git  # Authentication with GitHub token
-          git push origin main  # Pousser les modifications dans le dépôt PFE_project_deploy
+          git remote set-url origin https://github.com/${{ github.actor}}:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git  
+          git push origin main 
 
 
 

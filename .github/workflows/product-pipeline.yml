@@ -95,6 +95,8 @@ jobs:
           tar -xvzf apache-jmeter-5.6.3.tgz
       - name: Run JMeter Performance Test
         run: |
+          # Créer les répertoires de sortie si nécessaire
+          mkdir -p results/report
           # Exécuter les tests de performance avec JMeter en mode non interactif
           ./apache-jmeter-5.6.3/bin/jmeter -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report
 

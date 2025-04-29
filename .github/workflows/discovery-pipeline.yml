@@ -116,7 +116,7 @@ jobs:
           cd PFE_project_deploy
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git remote set-url origin https://github.com/${{ github.actor}}:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git  
+          git remote set-url origin https://$GITHUB_ACTOR:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git 
           git push origin main 
 
 

@@ -3,10 +3,10 @@ name: CI/CD Discovery Pipeline
 on:
   push:
     branches:
-      - main  # Déclenche le pipeline quand un commit est poussé dans la branche main
+      - main  
   pull_request:
     branches:
-      - main  # Déclenche le pipeline pour les pull requests vers main
+      - main  
 
 jobs:
   build:
@@ -109,14 +109,16 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update image version to latest"
-          add: "PFE_project_deploy/App-chart/values.yaml"
+          file_pattern: "PFE_project_deploy/App-chart/values.yaml"  # Corrected 'add' to 'file_pattern'
 
       - name: Push changes to PFE_project_deploy repository
         run: |
           cd PFE_project_deploy
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          git remote set-url origin https://github.com/${{ secrets.GITHUB_ACTOR }}:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git  # Authentication with GitHub token
           git push origin main  # Pousser les modifications dans le dépôt PFE_project_deploy
+
 
 
 

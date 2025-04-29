@@ -1,35 +1,57 @@
-<TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="ProductService Performance Test" enabled="true">
-  <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
-    <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-    <elementProp name="MainThreadGroup" elementType="ThreadGroup">
-      <stringProp name="ThreadGroup.num_threads">10</stringProp> <!-- Nombre d'utilisateurs simultanés -->
-      <stringProp name="ThreadGroup.ramp_time">5</stringProp> <!-- Temps pour atteindre la pleine charge -->
-      <stringProp name="ThreadGroup.loops">1</stringProp> <!-- Nombre de répétitions des requêtes -->
-    </elementProp>
-
-    <!-- Requête HTTP GET pour l'URL /api/v1/products -->
-    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP GET Request to /api/v1/products" enabled="true">
-      <stringProp name="HTTPSampler.domain">localhost</stringProp> <!-- Domaine du microservice -->
-      <stringProp name="HTTPSampler.port">8050</stringProp> <!-- Port du microservice -->
-      <stringProp name="HTTPSampler.protocol">http</stringProp> <!-- Protocole HTTP -->
-      <stringProp name="HTTPSampler.path">/api/v1/products</stringProp> <!-- L'endpoint à tester -->
-      <stringProp name="HTTPSampler.method">GET</stringProp> <!-- Méthode HTTP -->
-      <boolProp name="HTTPSampler.follow_redirects">true</boolProp> <!-- Suivre les redirections si nécessaire -->
-      <boolProp name="HTTPSampler.auto_redirects">false</boolProp> <!-- Ne pas rediriger automatiquement -->
-      <stringProp name="HTTPSampler.connect_timeout">10000</stringProp> <!-- Timeout de connexion -->
-      <stringProp name="HTTPSampler.response_timeout">10000</stringProp> <!-- Timeout de réponse -->
-    </HTTPSamplerProxy>
-
-    <!-- Collecteur de résultats -->
-    <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="View Results in Table" enabled="true">
-      <stringProp name="filename">results.jtl</stringProp> <!-- Fichier où les résultats seront sauvegardés -->
-    </ResultCollector>
-
-    <!-- Affichage des résultats dans une table -->
-    <ViewResultsFullVisualizer guiclass="ViewResultsFullVisualizer" testclass="ViewResultsFullVisualizer" testname="View Results Tree" enabled="true">
-      <stringProp name="filename"></stringProp> <!-- Fichier de résultats détaillés (vide ici) -->
-    </ViewResultsFullVisualizer>
-  </ThreadGroup>
-</TestPlan>
-
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="ProductService Performance Test" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <intProp name="ThreadGroup.num_threads">10</intProp>
+        <intProp name="ThreadGroup.ramp_time">5</intProp>
+        <longProp name="ThreadGroup.start_time">1714392300000</longProp>
+        <longProp name="ThreadGroup.end_time">1714392300000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP GET Request to /api/v1/products" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">8050</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/api/v1/products</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
+          <stringProp name="HTTPSampler.response_timeout">10000</stringProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+          <stringProp name="filename">results.jtl</stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
 

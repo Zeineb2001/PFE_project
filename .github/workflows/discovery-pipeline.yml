@@ -96,7 +96,7 @@ jobs:
 
           # Copier le fichier kubeconfig du secret GitHub dans le répertoire kubeconfig
           echo "${{ secrets.KUBE_CONFIG }}" > ${HOME}/.kube/config
-          
+          sed -i 's|https://127.0.0.1:6443|https://172.27.249.245:6443|' ~/.kube/config  
           # Vérifier que la mise à jour du fichier kubeconfig a bien été effectuée
           cat ${HOME}/.kube/config  
 

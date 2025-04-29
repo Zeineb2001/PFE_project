@@ -86,7 +86,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: push
+    needs: test
     steps:
       - name: Checkout the source code repository
         uses: actions/checkout@v3
@@ -118,12 +118,6 @@ jobs:
           git config user.email "actions@github.com"
           git push origin main  # Pousser les modifications dans le dépôt PFE_project_deploy
 
-      - name: Trigger Repository Dispatch Event
-        run: |
-          curl -XPOST -H "Accept: application/vnd.github.everest-preview+json" \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          --data '{"event_type": "new-image", "client_payload": {"image": "${{ secrets.DOCKER_USERNAME }}/discovery:latest"}}' \
-          https://api.github.com/repos/${{ github.repository }}/dispatches
 
 
 

@@ -93,13 +93,10 @@ jobs:
         run: |
           wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
           tar -xvzf apache-jmeter-5.6.3.tgz
-          export JMETER_HOME=$PWD/apache-jmeter-5.6.3
-          export PATH=$PATH:$JMETER_HOME/bin
-          ls -l $JMETER_HOME/bin/jmeter.sh 
       - name: Run JMeter Performance Test
         run: |
           # Exécuter les tests de performance avec JMeter en mode non interactif
-          $JMETER_HOME/bin/jmeter.sh -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report
+          ./apache-jmeter-5.6.3/bin/jmeter -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4

@@ -95,7 +95,7 @@ jobs:
           mkdir ~/.kube
 
           # Copier le fichier kubeconfig du secret GitHub dans le répertoire kubeconfig
-          echo "KUBE_CONFIG" | base64 --decode > ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
           chmod 600 ~/.kube/config
           # Vérifier que la mise à jour du fichier kubeconfig a bien été effectuée
           cat ~/.kube/config  

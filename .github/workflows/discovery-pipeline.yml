@@ -83,6 +83,8 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/discovery:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/discovery:latest
 
+ 
+ 
   deploy:
     runs-on: ubuntu-latest
     needs: push
@@ -93,21 +95,31 @@ jobs:
         with:
           kubectl-version: 'v1.24.7'
 
-      - name: Checkout the repository
+      - name: Checkout the code repository
         uses: actions/checkout@v3
+        with:
+          repository: Zeineb2001/PFE_project  
+
+      - name: Clone PFE_project_deploy repository
+        uses: actions/checkout@v3
+        with:
+          repository: Zeineb2001/PFE_project_deploy 
+          path: PFE_project_deploy  
 
       - name: Update Helm values.yaml with new Docker image
         run: |
-          # Update the values.yaml file with the new Docker image
-          sed -i 's|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/discovery:latest|' App-chart/values.yaml
+          # Update the values.yaml file in the PFE_project_deploy repository with the new Docker image
+          sed -i 's|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/discovery:latest|' PFE_project_deploy/App-chart/values.yaml
 
-      - name: Commit changes to Git repository
+      - name: Commit changes to PFE_project_deploy repository
         run: |
+          # Commit the changes to the PFE_project_deploy repository
+          cd PFE_project_deploy  # Go to the checked-out repo directory
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add App-chart/values.yaml
           git commit -m "Update discovery image to latest version"
-          git push origin main
+          git push origin main  # Push changes to PFE_project_deploy
 
       - name: Get ArgoCD admin password
         id: get-argocd-password

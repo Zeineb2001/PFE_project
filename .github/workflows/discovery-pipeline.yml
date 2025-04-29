@@ -97,9 +97,9 @@ jobs:
       - name: Set up kubeconfig for K3s
         run: |
           # Créer le répertoire kubeconfig
-          sudo mkdir -p ~/.kube
+          mkdir -p ~/.kube
           # Copier le fichier kubeconfig du secret GitHub dans le répertoire kubeconfig
-          sudo echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
           # Vérifier la configuration
           sudo kubectl config view
           sudo kubectl get nodes  # Vérifie que kubectl peut accéder au cluster K3s

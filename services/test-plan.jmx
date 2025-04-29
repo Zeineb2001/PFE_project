@@ -8,17 +8,27 @@
     </elementProp>
 
     <!-- Requête HTTP GET pour l'URL /api/v1/products -->
-    <HttpSampler guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP GET Request to /api/v1/products" enabled="true">
+    <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP GET Request to /api/v1/products" enabled="true">
       <stringProp name="HTTPSampler.domain">localhost</stringProp> <!-- Domaine du microservice -->
       <stringProp name="HTTPSampler.port">8050</stringProp> <!-- Port du microservice -->
       <stringProp name="HTTPSampler.protocol">http</stringProp> <!-- Protocole HTTP -->
       <stringProp name="HTTPSampler.path">/api/v1/products</stringProp> <!-- L'endpoint à tester -->
       <stringProp name="HTTPSampler.method">GET</stringProp> <!-- Méthode HTTP -->
-    </HttpSampler>
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp> <!-- Suivre les redirections si nécessaire -->
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp> <!-- Ne pas rediriger automatiquement -->
+      <stringProp name="HTTPSampler.connect_timeout">10000</stringProp> <!-- Timeout de connexion -->
+      <stringProp name="HTTPSampler.response_timeout">10000</stringProp> <!-- Timeout de réponse -->
+    </HTTPSamplerProxy>
 
     <!-- Collecteur de résultats -->
     <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="View Results in Table" enabled="true">
       <stringProp name="filename">results.jtl</stringProp> <!-- Fichier où les résultats seront sauvegardés -->
     </ResultCollector>
+
+    <!-- Affichage des résultats dans une table -->
+    <ViewResultsFullVisualizer guiclass="ViewResultsFullVisualizer" testclass="ViewResultsFullVisualizer" testname="View Results Tree" enabled="true">
+      <stringProp name="filename"></stringProp> <!-- Fichier de résultats détaillés (vide ici) -->
+    </ViewResultsFullVisualizer>
   </ThreadGroup>
 </TestPlan>
+

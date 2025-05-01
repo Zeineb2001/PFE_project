@@ -80,8 +80,10 @@ jobs:
       - name: Build and push Docker image
         working-directory: services/gateway
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/gateway:latest
+          TAG=v${{ github.run_number }}
+          echo "Building and pushing image with tag $TAG"        
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/gateway:$TAG .
+          docker push ${{ secrets.DOCKER_USERNAME }}/gateway:$TAG
 
   deploy:
     runs-on: ubuntu-latest
@@ -105,12 +107,12 @@ jobs:
         id: imgupd
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval '.image.repository = "${{ secrets.DOCKER_USERNAME }}/gateway" | .image.tag = "latest"' -i PFE_project_deploy/App-chart/values.yaml
+          cmd: yq eval '.image.repository = "${{ secrets.DOCKER_USERNAME }}/gateway" | .image.tag = "v'${{ github.run_number }}'"' -i PFE_project_deploy/App-chart/values.yaml
 
       - name: Commit changes to PFE_project_deploy repository
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Update image version to latest"
+          commit_message: "Update image version to v${{ github.run_number }}"
           file_pattern: "PFE_project_deploy/App-chart/values.yaml"  
 
       - name: Push changes to PFE_project_deploy repository

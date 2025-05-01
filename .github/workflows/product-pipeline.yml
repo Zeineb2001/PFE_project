@@ -11,11 +11,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-     
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -35,7 +34,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: build
-
     services:
       postgres:
         image: postgres:latest
@@ -67,7 +65,8 @@ jobs:
 
       - name: Create product database
         run: |
-          PGPASSWORD=alibou psql -h localhost -U alibou -d postgres -c "CREATE DATABASE product;"
+          PGPASSWORD=alibou psql -h localhost -U alibou -d postgres \
+            -c "CREATE DATABASE product;"
 
       - name: Run unit tests
         working-directory: services/product
@@ -87,40 +86,41 @@ jobs:
             -Dsonar.organization=zeineb2001 \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.java.binaries=target
-            
-      # Ajouter l'étape JMeter après les tests unitaires
-      - name: Install JMeter
+
+  push:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        working-directory: services/product
         run: |
-          wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
-          tar -xvzf apache-jmeter-5.6.3.tgz
-      - name: Run JMeter Performance Test
-        run: |
-          # Créer les répertoires de sortie si nécessaire
-          mkdir -p results/report
-          # Exécuter les tests de performance avec JMeter en mode non interactif
-          
-          ./apache-jmeter-5.6.3/bin/jmeter -n -t services/test-plan.jmx -l results/result.jtl -e -o results/report -Jlog_level.jmeter=DEBUG
-          
-      - name: List files in results directory
-        run: |
-          ls -lh results/
-          cat results/result.jtl
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/product:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/product:latest
 
   deploy:
     runs-on: ubuntu-latest
     needs: push
     permissions:
-      contents: write 
+      contents: write
     steps:
       - name: Checkout the source code repository
         uses: actions/checkout@v3
         with:
-          repository: Zeineb2001/PFE_project 
+          repository: Zeineb2001/PFE_project
 
       - name: Clone PFE_project_deploy repository
         uses: actions/checkout@v3
         with:
-          repository: Zeineb2001/PFE_project_deploy  
+          repository: Zeineb2001/PFE_project_deploy
           path: PFE_project_deploy
           token: ${{ secrets.GH_TOKEN }}
 
@@ -128,18 +128,20 @@ jobs:
         id: imgupd
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval '.image.repository = "${{ secrets.DOCKER_USERNAME }}/discovery" | .image.tag = "latest"' -i PFE_project_deploy/App-chart/values.yaml
+          cmd: yq eval '.image.repository = "${{ secrets.DOCKER_USERNAME }}/product" | .image.tag = "latest"' -i PFE_project_deploy/App-chart/values.yaml
 
       - name: Commit changes to PFE_project_deploy repository
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update image version to latest"
-          file_pattern: "PFE_project_deploy/App-chart/values.yaml"  # Corrected 'add' to 'file_pattern'
+          file_pattern: "PFE_project_deploy/App-chart/values.yaml"
 
       - name: Push changes to PFE_project_deploy repository
         run: |
           cd PFE_project_deploy
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git remote set-url origin https://$GITHUB_ACTOR:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git 
-          git push origin main 
+          git remote set-url origin \
+            https://$GITHUB_ACTOR:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git
+          git push origin main
+

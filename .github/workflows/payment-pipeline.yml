@@ -133,7 +133,7 @@ jobs:
         id: imgupd
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval '.image.repository = "${{ secrets.DOCKER_USERNAME }}/payment" | .image.tag = "v'${{ github.run_number }}'"' -i PFE_project_deploy/App-chart/values.yaml
+          cmd: yq eval 'payment.image.repository = "${{ secrets.DOCKER_USERNAME }}/payment" | payment.image.tag = "v'${{ github.run_number }}'"' -i PFE_project_deploy/App-chart/values.yaml
 
       - name: Commit changes to PFE_project_deploy repository
         uses: stefanzweifel/git-auto-commit-action@v4

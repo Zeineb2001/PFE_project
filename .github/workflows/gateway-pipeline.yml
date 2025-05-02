@@ -105,8 +105,8 @@ jobs:
 
       - name: Update Image Version in values.yaml
         run: |
-          yq eval '.product.image.repository = "${{ secrets.DOCKER_USERNAME }}/gateway" |
-                   .product.image.tag = "v${{ github.run_number }}"' \
+          yq eval '.gateway.image.repository = "${{ secrets.DOCKER_USERNAME }}/gateway" |
+                   .gateway.image.tag = "v${{ github.run_number }}"' \
             -i PFE_project_deploy/App-chart/values.yaml
       - name: Commit changes to PFE_project_deploy repository
         uses: stefanzweifel/git-auto-commit-action@v4

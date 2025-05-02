@@ -89,39 +89,42 @@ jobs:
     runs-on: ubuntu-latest
     needs: push
     permissions:
-      contents: write 
+      contents: write
     steps:
-      - name: Checkout the source code repository
+      - name: Checkout source code repository
         uses: actions/checkout@v3
         with:
-          repository: Zeineb2001/PFE_project 
+          repository: Zeineb2001/PFE_project
 
-      - name: Clone PFE_project_deploy repository
+      - name: Clone deployment repository
         uses: actions/checkout@v3
         with:
-          repository: Zeineb2001/PFE_project_deploy  
+          repository: Zeineb2001/PFE_project_deploy
           path: PFE_project_deploy
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Update Image Version in values.yaml
-        id: imgupd
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq eval '.discovery.image.repository = "${{ secrets.DOCKER_USERNAME }}/discovery" | .discovery.image.tag = "v'${{ github.run_number }}'"' -i PFE_project_deploy/App-chart/values.yaml
-
+        run: |
+          yq eval '.product.image.repository = "${{ secrets.DOCKER_USERNAME }}/discovery" |
+                   .product.image.tag = "v${{ github.run_number }}"' \
+            -i PFE_project_deploy/App-chart/values.yaml
       - name: Commit changes to PFE_project_deploy repository
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update image version to v${{ github.run_number }}"
-          file_pattern: "PFE_project_deploy/App-chart/values.yaml"  
-
+          file_pattern: "App-chart/values.yaml"
+          repository: ./PFE_project_deploy
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+      - name: Show updated values.yaml
+        run: cat PFE_project_deploy/App-chart/values.yaml
+        
       - name: Push changes to PFE_project_deploy repository
         run: |
           cd PFE_project_deploy
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git remote set-url origin https://$GITHUB_ACTOR:${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git 
-          git push origin main 
+          git remote set-url origin https://${{ secrets.GH_TOKEN }}@github.com/Zeineb2001/PFE_project_deploy.git
+          git push origin main
 
 
 

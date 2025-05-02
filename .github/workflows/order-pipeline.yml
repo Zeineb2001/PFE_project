@@ -131,7 +131,7 @@ jobs:
         id: imgupd
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval '.image.repository = "${{ secrets.DOCKER_USERNAME }}/order" | .image.tag = "v'${{ github.run_number }}'"' -i PFE_project_deploy/App-chart/values.yaml
+          cmd: yq eval 'order.image.repository = "${{ secrets.DOCKER_USERNAME }}/order" | order.image.tag = "v'${{ github.run_number }}'"' -i PFE_project_deploy/App-chart/values.yaml
 
       - name: Commit changes to PFE_project_deploy repository
         uses: stefanzweifel/git-auto-commit-action@v4

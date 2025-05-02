@@ -140,7 +140,9 @@ jobs:
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
           commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-
+      - name: Show updated values.yaml
+        run: cat PFE_project_deploy/App-chart/values.yaml
+        
       - name: Push changes to PFE_project_deploy repository
         run: |
           cd PFE_project_deploy

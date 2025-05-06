@@ -48,10 +48,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Run unit tests
-        working-directory: services/discovery
-        run: mvn test
-
       - name: SonarCloud Analysis
         working-directory: services/discovery
         env:

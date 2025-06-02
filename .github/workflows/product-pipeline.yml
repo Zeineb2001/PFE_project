@@ -108,7 +108,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/product:$TAG .
           docker push ${{ secrets.DOCKER_USERNAME }}/product:$TAG
 
-  deploy:
+  Update:
     runs-on: ubuntu-latest
     needs: push
     permissions:

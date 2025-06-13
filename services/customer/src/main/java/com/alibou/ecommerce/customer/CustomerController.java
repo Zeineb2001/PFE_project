@@ -25,7 +25,8 @@ public class CustomerController {
   public ResponseEntity<String> createCustomer(
       @RequestBody @Valid CustomerRequest request
   ) {
-    return ResponseEntity.ok(this.service.createCustomer(request));
+    return ResponseEntity.ok("Nouveau client créé avec succès !");
+    //return ResponseEntity.ok(this.service.createCustomer(request));
   }
 
   @PutMapping

@@ -27,7 +27,7 @@ spring:
   kafka:
     producer:
       acks: -1    
-      bootstrap-servers: kafka:9092
+      bootstrap-servers: kafka-service:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
@@ -45,3 +45,11 @@ management:
   zipkin:
     tracing:
       endpoint: http://zipkin:9411/api/v2/spans
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true

@@ -80,7 +80,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/customer:$TAG .
           docker push ${{ secrets.DOCKER_USERNAME }}/customer:$TAG
 
-  deploy:
+  update:
     runs-on: ubuntu-latest
     needs: push
     permissions:

@@ -17,7 +17,9 @@ public class CustomerService {
 
   public String createCustomer(CustomerRequest request) {
     var customer = this.repository.save(mapper.toCustomer(request));
-    return customer.getId();
+      //return customer.getId();
+      return "Nouveau client avec l'ID " + customer.getId();
+
   }
 
   public void updateCustomer(CustomerRequest request) {
